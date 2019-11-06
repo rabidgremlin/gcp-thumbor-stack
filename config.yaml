@@ -1,0 +1,25 @@
+imports:
+  - path: ./common/container_instance_template.jinja
+    name: container_instance_template.jinja
+  - path: ./common/container_helper.jinja
+    name: container_helper.jinja  
+
+
+resources:
+  - name: thumbor
+    type: container_instance_template.jinja
+    properties:
+      machineType: g1-small  
+      port: 80
+      dockerEnv:
+         DETECTORS: '[''''thumbor.detectors.face_detector'''',''''thumbor.detectors.feature_detector'''']'
+         OPTIMIZERS: '[''''thumbor.optimizers.jpegtran'''']'
+         LOADER: thumbor_cloud_storage.loaders.cloud_storage_loader
+         CLOUD_STORAGE_BUCKET_ID: assets-thumbor-play
+         CLOUD_STORAGE_PROJECT_ID: thumborplay
+         STORAGE_EXPIRATION_SECONDS: 300
+         UPLOAD_ENABLED: False
+         RESULT_STORAGE_EXPIRATION_SECONDS: 300
+         RESULT_STORAGE_STORES_UNSAFE: True
+      dockerImage: minimalcompact/thumbor
+      containerImage: family/cos-stable
