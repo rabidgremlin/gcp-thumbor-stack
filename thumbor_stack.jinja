@@ -1,15 +1,12 @@
-imports:
-  - path: ./common/container_instance_template.jinja
-    name: container_instance_template.jinja
-  - path: ./common/container_helper.jinja
-    name: container_helper.jinja  
+
+{% set NAME_INSTANCE_TEMPLATE = env["deployment"] + "-thumbor-server-it" %}
 
 
 resources:
-  - name: thumbor
+  - name: {{ NAME_INSTANCE_TEMPLATE }}
     type: container_instance_template.jinja
     properties:
-      machineType: g1-small  
+      machineType: {{ properties['serverMachineType'] }}
       port: 80
       dockerEnv:
          DETECTORS: '[''''thumbor.detectors.face_detector'''',''''thumbor.detectors.feature_detector'''']'

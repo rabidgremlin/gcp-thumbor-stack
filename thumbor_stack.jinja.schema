@@ -1,0 +1,30 @@
+info:
+  title: Thumbor stack template
+  author: rabidgremlin
+  description: Creates a thumbor stack serving and resinzing images out of a storage bucket
+  version: 1.0
+
+imports:
+  - path: ./common/container_instance_template.jinja
+    name: container_instance_template.jinja
+  - path: ./common/container_helper.jinja
+    name: container_helper.jinja 
+
+required:
+- region
+- maxServers
+- serverMachineType
+
+properties:
+  region:
+    type: string
+    description: The region to deploy the stack too
+
+  maxServers:
+    type: integer
+    description: The maximum number of concurrent Thumbor services to scale to
+
+  serverMachineType:
+    type: string
+    description: The mchine type of the Thumbor servers
+

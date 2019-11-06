@@ -12,10 +12,9 @@ limitations under the License.
 #}
 
 {% from 'container_helper.jinja' import GenerateManifest %}
-{% set IT_NAME = env['name'] + '-it' %}
 
 resources:
-- name: {{ IT_NAME }}
+- name: {{ env['name'] }}
   type: compute.v1.instanceTemplate
   properties:
     properties:
@@ -24,7 +23,11 @@ resources:
         - key: gce-container-declaration
           value: |
             {{ GenerateManifest(env['name'], properties['port'],properties['dockerImage'], properties['dockerEnv'])|indent(12) }}
-      machineType: {{ properties['machineType'] }}
+        - key: google-logging-enabled
+          value: "true"        
+      machineType: {{ properties['machineType'] }} 
+      tags:
+        items: ["http-server"]     
       disks:
       - deviceName: boot
         boot: true
@@ -41,4 +44,4 @@ resources:
 
 outputs:
 - name: instanceTemplateSelfLink
-  value: $(ref.{{ IT_NAME }}.selfLink)
+  value: $(ref.{{ env['name'] }}.selfLink)
