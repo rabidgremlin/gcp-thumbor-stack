@@ -1,0 +1,14 @@
+resources:
+- name: {{ env['name'] }}
+  type: storage.v1.bucket
+  properties:
+    location: {{ properties['region'] }}
+    locationType: region
+    storageClass: REGIONAL
+    kind: storage#bucket
+    versioning:
+      enabled: false
+
+outputs:
+  - name: {{ env['name'] }}
+    value: $(ref.{{ env['name'] }})      

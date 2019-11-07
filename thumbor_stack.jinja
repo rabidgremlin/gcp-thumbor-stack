@@ -1,8 +1,14 @@
 
+{% set NAME_STORAGE_BUCKET = env["deployment"] + "-assets" + "-" + env["project_number"] %}
 {% set NAME_INSTANCE_TEMPLATE = env["deployment"] + "-thumbor-server-it" %}
 
 
 resources:
+  - name: {{ NAME_STORAGE_BUCKET }}
+    type: storage_bucket_template.jinja
+    properties:
+      region: {{ properties['region'] }}
+
   - name: {{ NAME_INSTANCE_TEMPLATE }}
     type: container_instance_template.jinja
     properties:
@@ -12,8 +18,8 @@ resources:
          DETECTORS: '[''''thumbor.detectors.face_detector'''',''''thumbor.detectors.feature_detector'''']'
          OPTIMIZERS: '[''''thumbor.optimizers.jpegtran'''']'
          LOADER: thumbor_cloud_storage.loaders.cloud_storage_loader
-         CLOUD_STORAGE_BUCKET_ID: assets-thumbor-play
-         CLOUD_STORAGE_PROJECT_ID: thumborplay
+         CLOUD_STORAGE_BUCKET_ID: {{ NAME_STORAGE_BUCKET }}
+         CLOUD_STORAGE_PROJECT_ID: {{  env["project"] }}
          STORAGE_EXPIRATION_SECONDS: 300
          UPLOAD_ENABLED: False
          RESULT_STORAGE_EXPIRATION_SECONDS: 300
