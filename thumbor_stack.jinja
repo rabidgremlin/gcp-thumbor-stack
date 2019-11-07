@@ -1,6 +1,7 @@
 
 {% set NAME_STORAGE_BUCKET = env["deployment"] + "-assets" + "-" + env["project_number"] %}
 {% set NAME_INSTANCE_TEMPLATE = env["deployment"] + "-thumbor-server-it" %}
+{% set NAME_HEALTH_CHECK = env["deployment"] + "-thumbor-server-hc" %}
 
 
 resources:
@@ -26,3 +27,16 @@ resources:
          RESULT_STORAGE_STORES_UNSAFE: True
       dockerImage: minimalcompact/thumbor
       containerImage: family/cos-stable
+
+
+  - name: {{ NAME_HEALTH_CHECK }}
+    type: compute.v1.healthCheck
+    properties:
+      checkIntervalSec: 10
+      timeoutSec: 5
+      unhealthyThreshold: 3
+      healthyThreshold: 2
+      type: TCP
+      tcpHealthCheck:
+        port: 80
+        
