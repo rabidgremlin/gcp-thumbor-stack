@@ -3,6 +3,7 @@
 {% set NAME_INSTANCE_TEMPLATE = env["deployment"] + "-thumbor-server-it" %}
 {% set NAME_HEALTH_CHECK = env["deployment"] + "-thumbor-server-hc" %}
 {% set NAME_INSTANCE_GROUP_MANAGER = env["deployment"] + "-thumbor-server-igm" %}
+{% set NAME_AUTOSCALER = env["deployment"] + "-thumbor-server-as" %}
 
 
 resources:
@@ -51,5 +52,18 @@ resources:
       autoHealingPolicies:
       - initialDelaySec: 300
         healthCheck: $(ref.{{ NAME_HEALTH_CHECK }}.selfLink)
+
+  - name: {{ NAME_AUTOSCALER }}
+    type: compute.v1.autoscaler
+    properties:
+      zone: {{ properties["region"]  + '-a'}}
+      target: $(ref.{{ NAME_INSTANCE_GROUP_MANAGER }}.selfLink)
+      autoscalingPolicy:
+        minNumReplicas: 1
+        maxNumReplicas: {{ properties["maxServers"] }}
+        coolDownPeriodSec: 300
+        cpuUtilization:
+          utilizationTarget: 0.6
+      
            
         
