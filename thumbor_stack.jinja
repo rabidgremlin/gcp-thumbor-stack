@@ -2,6 +2,7 @@
 {% set NAME_STORAGE_BUCKET = env["deployment"] + "-assets" + "-" + env["project_number"] %}
 {% set NAME_INSTANCE_TEMPLATE = env["deployment"] + "-thumbor-server-it" %}
 {% set NAME_HEALTH_CHECK = env["deployment"] + "-thumbor-server-hc" %}
+{% set NAME_INSTANCE_GROUP_MANAGER = env["deployment"] + "-thumbor-server-igm" %}
 
 
 resources:
@@ -39,4 +40,16 @@ resources:
       type: TCP
       tcpHealthCheck:
         port: 80
+
+  - name: {{ NAME_INSTANCE_GROUP_MANAGER }}
+    type: compute.v1.instanceGroupManager
+    properties:
+      zone: {{ properties["region"]  + '-a'}}
+      targetSize: 1
+      baseInstanceName: {{ NAME_INSTANCE_GROUP_MANAGER }}
+      instanceTemplate: $(ref.{{ NAME_INSTANCE_TEMPLATE }}.selfLink)
+      autoHealingPolicies:
+      - initialDelaySec: 300
+        healthCheck: $(ref.{{ NAME_HEALTH_CHECK }}.selfLink)
+           
         

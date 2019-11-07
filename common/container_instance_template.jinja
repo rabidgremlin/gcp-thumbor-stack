@@ -42,6 +42,6 @@ resources:
           type: ONE_TO_ONE_NAT
         network: https://www.googleapis.com/compute/v1/projects/{{ env['project'] }}/global/networks/default
 
-outputs:
-- name: instanceTemplateSelfLink
-  value: $(ref.{{ env['name'] }}.selfLink)
+#outputs:
+#- name: instanceTemplateSelfLink
+#  value: $(ref.{{ env['name'] }}.selfLink)
