@@ -4,8 +4,11 @@
 {% set NAME_HEALTH_CHECK = env["deployment"] + "-thumbor-server-hc" %}
 {% set NAME_INSTANCE_GROUP_MANAGER = env["deployment"] + "-thumbor-server-igm" %}
 {% set NAME_AUTOSCALER = env["deployment"] + "-thumbor-server-as" %}
-{% set NAME_LB_BACKEND_SERVICE = env["deployment"] + "-thumbor-server-bes" %}
-{% set NAME_LB_BACKEND = env["deployment"] + "-thumbor-server-be" %}
+{% set NAME_LB_BACKEND_SERVICE = env["deployment"] + "-thumbor-server-lb-bes" %}
+{% set NAME_LB_BACKEND = env["deployment"] + "-thumbor-server-lb-be" %}
+{% set NAME_LB_URL_MAP = env["deployment"] + "-thumbor-server-lb-um" %}
+{% set NAME_LB_FRONTEND_HTTP = env["deployment"] + "-thumbor-server-lb-fe-http" %}
+{% set NAME_LB = env["deployment"] + "-thumbor-server-lb" %}
 
 resources:
   - name: {{ NAME_STORAGE_BUCKET }}
@@ -70,9 +73,27 @@ resources:
     type: compute.v1.backendService
     properties:
       loadBalancingScheme: EXTERNAL
+      enableCDN: true
       portName: http
       protocol: HTTP
       backends:
         - group: $(ref.{{ NAME_INSTANCE_GROUP_MANAGER }}.instanceGroup)
       healthChecks: [ $(ref.{{ NAME_HEALTH_CHECK }}.selfLink) ]
+
+  - name: {{ NAME_LB_URL_MAP }}
+    type: compute.v1.urlMap
+    properties:
+      defaultService: $(ref.{{ NAME_LB_BACKEND_SERVICE }}.selfLink)      
+
+  - name: {{ NAME_LB_FRONTEND_HTTP }}
+    type: compute.v1.targetHttpProxy
+    properties:
+      urlMap: $(ref.{{ NAME_LB_URL_MAP }}.selfLink)
+
+  - name: {{ NAME_LB }}
+    type: compute.v1.globalForwardingRule
+    properties:
+      IPProtocol: TCP
+      portRange: 80
+      target: $(ref.{{ NAME_LB_FRONTEND_HTTP }}.selfLink)    
         
