@@ -29,7 +29,7 @@ resources:
     accessControl:
       gcpIamPolicy:
         bindings:
-        - role: roles/storage.objectViewer
+        - role: roles/storage.admin
           members:
           - "serviceAccount:$(ref.{{ env["deployment"] + "-thumbor-server" }}.email)"
         - role: roles/storage.legacyBucketOwner
