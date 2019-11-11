@@ -9,8 +9,6 @@ imports:
     name: container_instance_template.jinja
   - path: ./common/container_helper.jinja
     name: container_helper.jinja 
-  - path: ./common/storage_bucket_template.jinja
-    name: storage_bucket_template.jinja   
 
 required:
 - region

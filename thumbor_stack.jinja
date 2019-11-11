@@ -1,4 +1,6 @@
 
+{% set NAME_FW_ALLOW_HEALTH_CHECK = env["deployment"] + "-allow-http-healthcheck" %}
+{% set NAME_SERVICE_ACCOUNT = env["deployment"] + "-thumbor-server" %}
 {% set NAME_STORAGE_BUCKET = env["deployment"] + "-assets" + "-" + env["project_number"] %}
 {% set NAME_INSTANCE_TEMPLATE = env["deployment"] + "-thumbor-server-it" %}
 {% set NAME_HEALTH_CHECK = env["deployment"] + "-thumbor-server-hc" %}
@@ -11,11 +13,22 @@
 {% set NAME_LB = env["deployment"] + "-thumbor-server-lb" %}
 
 resources:
-  - name: {{ env["deployment"] + "-thumbor-server" }}
+  - name: {{ NAME_FW_ALLOW_HEALTH_CHECK }} 
+    type: compute.v1.firewall
+    properties:
+      sourceRanges:
+        - 35.191.0.0/16
+        - 130.211.0.0/22
+      allowed:
+        - IPProtocol: tcp
+          ports:
+            - 80
+
+  - name: {{ NAME_SERVICE_ACCOUNT }}
     type: iam.v1.serviceAccount
     properties:
-      accountId: {{ env["deployment"] + "-thumbor-server" }}
-      displayName: {{ env["deployment"] + "-thumbor-server" }}
+      accountId: {{ NAME_SERVICE_ACCOUNT }}
+      displayName: {{ NAME_SERVICE_ACCOUNT }}
      
   - name: {{ NAME_STORAGE_BUCKET }}
     type: storage.v1.bucket
@@ -31,7 +44,7 @@ resources:
         bindings:
         - role: roles/storage.admin
           members:
-          - "serviceAccount:$(ref.{{ env["deployment"] + "-thumbor-server" }}.email)"
+          - "serviceAccount:$(ref.{{ NAME_SERVICE_ACCOUNT }}.email)"
         - role: roles/storage.legacyBucketOwner
           members:
           - "projectEditor:{{ env["project"] }}"
@@ -58,6 +71,9 @@ resources:
          RESULT_STORAGE_STORES_UNSAFE: True
       dockerImage: minimalcompact/thumbor
       containerImage: family/cos-stable
+      tags: ["http-server","{{ NAME_FW_ALLOW_HEALTH_CHECK }}"]
+      scopes:
+        - https://www.googleapis.com/auth/devstorage.read_only
 
 
   - name: {{ NAME_HEALTH_CHECK }}
