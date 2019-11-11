@@ -11,15 +11,40 @@
 {% set NAME_LB = env["deployment"] + "-thumbor-server-lb" %}
 
 resources:
-  - name: {{ NAME_STORAGE_BUCKET }}
-    type: storage_bucket_template.jinja
+  - name: {{ env["deployment"] + "-thumbor-server" }}
+    type: iam.v1.serviceAccount
     properties:
-      region: {{ properties['region'] }}
-
+      accountId: {{ env["deployment"] + "-thumbor-server" }}
+      displayName: {{ env["deployment"] + "-thumbor-server" }}
+     
+  - name: {{ NAME_STORAGE_BUCKET }}
+    type: storage.v1.bucket
+    properties:
+      location: {{ properties['region'] }}
+      locationType: region
+      storageClass: REGIONAL
+      kind: storage#bucket
+      versioning:
+        enabled: false
+    accessControl:
+      gcpIamPolicy:
+        bindings:
+        - role: roles/storage.objectViewer
+          members:
+          - "serviceAccount:$(ref.{{ env["deployment"] + "-thumbor-server" }}.email)"
+        - role: roles/storage.legacyBucketOwner
+          members:
+          - "projectEditor:{{ env["project"] }}"
+          - "projectOwner:{{ env["project"] }}"
+        - role: roles/storage.legacyBucketReader
+          members:
+          - "projectViewer:{{ env["project"] }}"
+  
   - name: {{ NAME_INSTANCE_TEMPLATE }}
     type: container_instance_template.jinja
     properties:
       machineType: {{ properties['serverMachineType'] }}
+      serviceAccountEmail: $(ref.{{ env["deployment"] + "-thumbor-server" }}.email)
       port: 80
       dockerEnv:
          DETECTORS: '[''''thumbor.detectors.face_detector'''',''''thumbor.detectors.feature_detector'''']'

@@ -41,6 +41,12 @@ resources:
         - name: external-nat
           type: ONE_TO_ONE_NAT
         network: https://www.googleapis.com/compute/v1/projects/{{ env['project'] }}/global/networks/default
+      serviceAccounts:
+      - email: {{ properties['serviceAccountEmail'] }}
+        scopes:
+        - https://www.googleapis.com/auth/logging.write
+        - https://www.googleapis.com/auth/monitoring.write
+
 
 #outputs:
 #- name: instanceTemplateSelfLink
