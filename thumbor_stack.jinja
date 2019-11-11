@@ -1,5 +1,5 @@
 
-{% set NAME_FW_ALLOW_HEALTH_CHECK = env["deployment"] + "-allow-http-healthcheck" %}
+{% set NAME_FW_ALLOW_PROXY_AND_HEALTH_CHECK = env["deployment"] + "-allow-health-check-and-proxy" %}
 {% set NAME_SERVICE_ACCOUNT = env["deployment"] + "-thumbor-server" %}
 {% set NAME_STORAGE_BUCKET = env["deployment"] + "-assets" + "-" + env["project_number"] %}
 {% set NAME_INSTANCE_TEMPLATE = env["deployment"] + "-thumbor-server-it" %}
@@ -13,7 +13,7 @@
 {% set NAME_LB = env["deployment"] + "-thumbor-server-lb" %}
 
 resources:
-  - name: {{ NAME_FW_ALLOW_HEALTH_CHECK }} 
+  - name: {{ NAME_FW_ALLOW_PROXY_AND_HEALTH_CHECK }} 
     type: compute.v1.firewall
     properties:
       sourceRanges:
@@ -71,7 +71,7 @@ resources:
          RESULT_STORAGE_STORES_UNSAFE: True
       dockerImage: minimalcompact/thumbor
       containerImage: family/cos-stable
-      tags: ["http-server","{{ NAME_FW_ALLOW_HEALTH_CHECK }}"]
+      tags: ["{{ NAME_FW_ALLOW_PROXY_AND_HEALTH_CHECK }}"]
       scopes:
         - https://www.googleapis.com/auth/devstorage.read_only
 
