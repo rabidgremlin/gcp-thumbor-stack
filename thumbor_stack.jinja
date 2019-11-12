@@ -32,7 +32,8 @@ resources:
      
   - name: {{ NAME_STORAGE_BUCKET }}
     type: storage.v1.bucket
-    properties:      
+    properties:
+      location: {{ properties['storageLocation'] }}      
       storageClass: STANDARD
       kind: storage#bucket
       versioning:

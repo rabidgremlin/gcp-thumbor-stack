@@ -7,6 +7,7 @@ resources:
   properties:
     zones:
       - us-central1-a
-      - australia-southeast1-a    
+      - us-east1-b    
+    storageLocation: US  
     maxServersPerZone: 3
     serverMachineType: g1-small

@@ -12,6 +12,7 @@ imports:
 
 required:
 - zones
+- storageLocation
 - maxServersPerZone
 - serverMachineType
 
@@ -21,6 +22,10 @@ properties:
     description: The zones to deploy Thumbor servers into
     items:
     - type: string
+
+  storageLocation:
+    type: string
+    description: The location to place the multizone storage bucket that will hold the base images. Must be ASIA, EU or US  
 
   maxServersPerZone:
     type: integer

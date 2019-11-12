@@ -1,6 +1,6 @@
 # GCP Thumbor Stack
 
-Deployment Manager scripts to create an end to end thumbor image resizing stack on the Google Cloud Platform
+Deployment Manager scripts to create an end to end [Thumbor](http://thumbor.org/) image resizing and cropping stack on the Google Cloud Platform
 
 ## Create and test the stack
 Run the following command. You can run replace ```thumbor-test``` with your own name. All resources created by the deployment manager scripts are pre-fixed with this name.
@@ -37,3 +37,9 @@ ab -n 100 -c 2 http://[IP_ADDRESS]/unsafe/500x200/smart/smiling-man-and-woman-si
 ```
 If you change the parameters in the URL and rerun multiple times you can see the speed improvements 
 as the resized image is cached by Cloud CDN.
+
+## Deleting the stack
+First remove any images from your storage bucket, then run:
+```
+gcloud deployment-manager deployments delete thumbor-test
+```
