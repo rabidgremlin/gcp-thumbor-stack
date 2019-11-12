@@ -1,16 +1,16 @@
 
 {% set NAME_FW_ALLOW_PROXY_AND_HEALTH_CHECK = env["deployment"] + "-allow-health-check-and-proxy" %}
-{% set NAME_SERVICE_ACCOUNT = env["deployment"] + "-thumbor-server" %}
+{% set NAME_SERVICE_ACCOUNT = env["deployment"] + "-thumbor-svr" %}
 {% set NAME_STORAGE_BUCKET = env["deployment"] + "-assets" + "-" + env["project_number"] %}
-{% set NAME_INSTANCE_TEMPLATE = env["deployment"] + "-thumbor-server-it" %}
-{% set NAME_HEALTH_CHECK = env["deployment"] + "-thumbor-server-hc" %}
-{% set NAME_INSTANCE_GROUP_MANAGER = env["deployment"] + "-thumbor-server-igm" %}
-{% set NAME_AUTOSCALER = env["deployment"] + "-thumbor-server-as" %}
-{% set NAME_LB_BACKEND_SERVICE = env["deployment"] + "-thumbor-server-lb-bes" %}
-{% set NAME_LB_BACKEND = env["deployment"] + "-thumbor-server-lb-be" %}
-{% set NAME_LB_URL_MAP = env["deployment"] + "-thumbor-server-lb-um" %}
-{% set NAME_LB_FRONTEND_HTTP = env["deployment"] + "-thumbor-server-lb-fe-http" %}
-{% set NAME_LB = env["deployment"] + "-thumbor-server-lb" %}
+{% set NAME_INSTANCE_TEMPLATE = env["deployment"] + "-thumbor-svr-it" %}
+{% set NAME_HEALTH_CHECK = env["deployment"] + "-thumbor-svr-hc" %}
+{% set NAME_INSTANCE_GROUP_MANAGER = env["deployment"] + "-thumbor-svr-igm" %}
+{% set NAME_AUTOSCALER = env["deployment"] + "-thumbor-svr-as" %}
+{% set NAME_LB_BACKEND_SERVICE = env["deployment"] + "-thumbor-svr-lb-bes" %}
+{% set NAME_LB_BACKEND = env["deployment"] + "-thumbor-svr-lb-be" %}
+{% set NAME_LB_URL_MAP = env["deployment"] + "-thumbor-svr-lb-um" %}
+{% set NAME_LB_FRONTEND_HTTP = env["deployment"] + "-thumbor-svr-lb-fe-http" %}
+{% set NAME_LB = env["deployment"] + "-thumbor-svr-lb" %}
 
 resources:
   - name: {{ NAME_FW_ALLOW_PROXY_AND_HEALTH_CHECK }} 
@@ -32,10 +32,8 @@ resources:
      
   - name: {{ NAME_STORAGE_BUCKET }}
     type: storage.v1.bucket
-    properties:
-      location: {{ properties['region'] }}
-      locationType: region
-      storageClass: REGIONAL
+    properties:      
+      storageClass: STANDARD
       kind: storage#bucket
       versioning:
         enabled: false
@@ -57,7 +55,7 @@ resources:
     type: container_instance_template.jinja
     properties:
       machineType: {{ properties['serverMachineType'] }}
-      serviceAccountEmail: $(ref.{{ env["deployment"] + "-thumbor-server" }}.email)
+      serviceAccountEmail: $(ref.{{ NAME_SERVICE_ACCOUNT }}.email)
       port: 80
       dockerEnv:
          DETECTORS: '[''''thumbor.detectors.face_detector'''',''''thumbor.detectors.feature_detector'''']'
@@ -91,9 +89,9 @@ resources:
   - name: {{ NAME_INSTANCE_GROUP_MANAGER + '-' + zone }}
     type: compute.v1.instanceGroupManager
     properties:
-      zone: {{ properties["region"]  + '-' + zone }}
+      zone: {{ zone }}
       targetSize: 1
-      baseInstanceName: {{ NAME_INSTANCE_GROUP_MANAGER + '-' + zone }}
+      baseInstanceName: {{ NAME_INSTANCE_GROUP_MANAGER + '-' + zone + '-svr'}}
       instanceTemplate: $(ref.{{ NAME_INSTANCE_TEMPLATE }}.selfLink)
       autoHealingPolicies:
       - initialDelaySec: 300
@@ -103,11 +101,11 @@ resources:
   - name: {{ NAME_AUTOSCALER + '-' + zone }}
     type: compute.v1.autoscaler
     properties:
-      zone: {{ properties["region"]  + '-' + zone }}
+      zone: {{ zone }}
       target: $(ref.{{ NAME_INSTANCE_GROUP_MANAGER + '-' + zone }}.selfLink)
       autoscalingPolicy:
         minNumReplicas: 1
-        maxNumReplicas: {{ properties["maxServers"] }}
+        maxNumReplicas: {{ properties["maxServersPerZone"] }}
         coolDownPeriodSec: 300
         cpuUtilization:
           utilizationTarget: 0.6

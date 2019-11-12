@@ -1,7 +1,7 @@
 info:
   title: Thumbor stack template
   author: rabidgremlin
-  description: Creates a thumbor stack serving and resinzing images out of a storage bucket
+  description: Creates a thumbor stack serving and resizing images out of a storage bucket
   version: 1.0
 
 imports:
@@ -11,20 +11,22 @@ imports:
     name: container_helper.jinja 
 
 required:
-- region
-- maxServers
+- zones
+- maxServersPerZone
 - serverMachineType
 
 properties:
-  region:
-    type: string
-    description: The region to deploy the stack too
+  zones:
+    type: array
+    description: The zones to deploy Thumbor servers into
+    items:
+    - type: string
 
-  maxServers:
+  maxServersPerZone:
     type: integer
-    description: The maximum number of concurrent Thumbor services to scale to
+    description: The maximum number of concurrent Thumbor servers to scale too in each zone
 
   serverMachineType:
     type: string
-    description: The mchine type of the Thumbor servers
+    description: The machine type of the Thumbor servers
 
