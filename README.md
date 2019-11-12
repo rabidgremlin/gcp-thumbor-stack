@@ -2,7 +2,7 @@
 
 Deployment Manager scripts to create an end to end thumbor image resizing stack on the Google Cloud Platform
 
-## Create the stack
+## Create and test the stack
 Run the following command. You can run replace ```thumbor-test``` with your own name. All resources created by the deployment manager scripts are pre-fixed with this name.
 
 In your Cloud Shell, run the following commands:
@@ -29,3 +29,11 @@ In a browser retrieve a resized image. Replace [IP_ADDRESS] with the IP address 
 http://[IP_ADDRESS]/unsafe/200x200/smart/smiling-man-and-woman-sitting-on-pavement-2216727.jpg
 ```
 **Note:** You may have to wait several minutes after your stack has been created for this image retrieve to work
+
+You can also simulate load on the stack by:
+```
+sudo apt-get -y install apache2-utils
+ab -n 100 -c 2 http://[IP_ADDRESS]/unsafe/500x200/smart/smiling-man-and-woman-sitting-on-pavement-2216727.jpg
+```
+If you change the parameters in the URL and rerun multiple times you can see the speed improvements 
+as the resized image is cached by Cloud CDN.
