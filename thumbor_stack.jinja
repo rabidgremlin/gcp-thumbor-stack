@@ -123,6 +123,8 @@ resources:
       backends:
         {% for zone in properties['zones'] %}
         - group: $(ref.{{ NAME_INSTANCE_GROUP_MANAGER + '-' + zone }}.instanceGroup)
+          balancingMode: UTILIZATION 
+          maxUtilization: 0.8
         {% endfor %}
       healthChecks: [ $(ref.{{ NAME_HEALTH_CHECK }}.selfLink) ]
 
