@@ -1,5 +1,6 @@
 imports:
-- path: thumbor_stack.jinja
+- path: thumbor_stack/thumbor_stack.jinja
+  name: thumbor_stack.jinja
 
 resources:
 - name: thumbor-stack
