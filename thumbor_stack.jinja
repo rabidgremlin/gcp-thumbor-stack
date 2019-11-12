@@ -87,28 +87,31 @@ resources:
       tcpHealthCheck:
         port: 80
 
-  - name: {{ NAME_INSTANCE_GROUP_MANAGER }}
+  {% for zone in properties['zones'] %}
+  - name: {{ NAME_INSTANCE_GROUP_MANAGER + '-' + zone }}
     type: compute.v1.instanceGroupManager
     properties:
-      zone: {{ properties["region"]  + '-a'}}
+      zone: {{ properties["region"]  + '-' + zone }}
       targetSize: 1
-      baseInstanceName: {{ NAME_INSTANCE_GROUP_MANAGER }}
+      baseInstanceName: {{ NAME_INSTANCE_GROUP_MANAGER + '-' + zone }}
       instanceTemplate: $(ref.{{ NAME_INSTANCE_TEMPLATE }}.selfLink)
       autoHealingPolicies:
       - initialDelaySec: 300
-        healthCheck: $(ref.{{ NAME_HEALTH_CHECK }}.selfLink)
+        healthCheck: $(ref.{{ NAME_HEALTH_CHECK }}.selfLink)  
+   
 
-  - name: {{ NAME_AUTOSCALER }}
+  - name: {{ NAME_AUTOSCALER + '-' + zone }}
     type: compute.v1.autoscaler
     properties:
-      zone: {{ properties["region"]  + '-a'}}
-      target: $(ref.{{ NAME_INSTANCE_GROUP_MANAGER }}.selfLink)
+      zone: {{ properties["region"]  + '-' + zone }}
+      target: $(ref.{{ NAME_INSTANCE_GROUP_MANAGER + '-' + zone }}.selfLink)
       autoscalingPolicy:
         minNumReplicas: 1
         maxNumReplicas: {{ properties["maxServers"] }}
         coolDownPeriodSec: 300
         cpuUtilization:
           utilizationTarget: 0.6
+  {% endfor %}         
       
   - name: {{ NAME_LB_BACKEND_SERVICE }}
     type: compute.v1.backendService
@@ -118,7 +121,9 @@ resources:
       portName: http
       protocol: HTTP
       backends:
-        - group: $(ref.{{ NAME_INSTANCE_GROUP_MANAGER }}.instanceGroup)
+        {% for zone in properties['zones'] %}
+        - group: $(ref.{{ NAME_INSTANCE_GROUP_MANAGER + '-' + zone }}.instanceGroup)
+        {% endfor %}
       healthChecks: [ $(ref.{{ NAME_HEALTH_CHECK }}.selfLink) ]
 
   - name: {{ NAME_LB_URL_MAP }}

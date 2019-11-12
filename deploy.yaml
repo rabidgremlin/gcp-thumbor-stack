@@ -6,5 +6,6 @@ resources:
   type: thumbor_stack.jinja
   properties:
     region: us-central1
+    zones: ["a","b"]  
     maxServers: 3
     serverMachineType: g1-small
