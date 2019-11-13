@@ -6,9 +6,7 @@ This script creates a HTTP Cloud Load Balancer, pointing at a cluster of Thumbor
 The Thumbor servers are configured to process images from a storage bucket and the whole stack is front-ended by a Cloud CDN for speed and scalability. 
 
 ## Create and test the stack
-Run the following command. You can run replace ```thumbor-test``` with your own name. All resources created by the deployment manager scripts are pre-fixed with this name.
-
-In your Cloud Shell, run the following commands:
+In your Cloud Shell, run the following commands. You can run replace ```thumbor-test``` with your own name. All resources created by the deployment manager scripts are pre-fixed with this name.
 
 ```
 git https://github.com/rabidgremlin/gcp-thumbor-stack.git

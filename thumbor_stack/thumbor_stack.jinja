@@ -44,7 +44,7 @@ resources:
     accessControl:
       gcpIamPolicy:
         bindings:
-        - role: roles/storage.objectViewer
+        - role: roles/storage.admin
           members:
           - "serviceAccount:$(ref.{{ NAME_SERVICE_ACCOUNT }}.email)"
         - role: roles/storage.legacyBucketOwner
