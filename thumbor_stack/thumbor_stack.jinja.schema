@@ -15,6 +15,8 @@ required:
 - storageLocation
 - maxServersPerZone
 - serverMachineType
+- allowUnsafe
+- securityKey
 
 properties:
   zones:
@@ -34,4 +36,13 @@ properties:
   serverMachineType:
     type: string
     description: The machine type of the Thumbor servers
+
+  allowUnsafe:
+    type: boolean
+    description: Toggles on or off the /unsafe url.
+
+  securityKey:
+    type: string
+    description: The key used to sign urls.  
+
 

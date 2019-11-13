@@ -2,6 +2,9 @@
 
 Deployment Manager scripts to create an end to end [Thumbor](http://thumbor.org/) image resizing and cropping stack on the Google Cloud Platform
 
+This script creates a HTTP Cloud Load Balancer, pointing at a cluster of Thumbor services distributed across one or more zones. 
+The Thumbor servers are configured to process images from a storage bucket and the whole stack is front-ended by a Cloud CDN for speed and scalability. 
+
 ## Create and test the stack
 Run the following command. You can run replace ```thumbor-test``` with your own name. All resources created by the deployment manager scripts are pre-fixed with this name.
 
@@ -43,3 +46,13 @@ First remove any images from your storage bucket, then run:
 ```
 gcloud deployment-manager deployments delete thumbor-test
 ```
+
+## Make production ready
+
+For production:
+
+* Adjust the ```zones``` and ```storageLocation``` values as needed
+* You need to set the ```securityKey``` to a unique value
+* You will also most likely want to set ```allowUnsafe``` to ```false``` to require [signed URLs](https://thumbor.readthedocs.io/en/latest/security.html)
+* You will configure DNS to point a domain at the IP address of the load balancer
+* If you want to set up SSL you will need [configure a HTTPS front-end](https://cloud.google.com/load-balancing/docs/https/) and [a SSL certificate](https://cloud.google.com/load-balancing/docs/ssl-certificates)

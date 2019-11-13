@@ -1,3 +1,4 @@
+# This deploys a Thumbor stack. See thumbor_stack.jinja and thumbor_stack.jinja.scheme for details
 imports:
 - path: thumbor_stack/thumbor_stack.jinja
   name: thumbor_stack.jinja
@@ -12,3 +13,5 @@ resources:
     storageLocation: US  
     maxServersPerZone: 3
     serverMachineType: g1-small
+    allowUnsafe: true
+    securityKey: changethis12345

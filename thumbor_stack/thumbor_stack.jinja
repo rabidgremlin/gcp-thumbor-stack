@@ -13,6 +13,7 @@
 {% set NAME_LB = env["deployment"] + "-thumbor-svr-lb" %}
 
 resources:
+  # Create the firewall rule to allow http load balancer to reach the thumbor server instances
   - name: {{ NAME_FW_ALLOW_PROXY_AND_HEALTH_CHECK }} 
     type: compute.v1.firewall
     properties:
@@ -24,12 +25,14 @@ resources:
           ports:
             - 80
 
+  # Create a service account to restrict access of Thumbor server instances
   - name: {{ NAME_SERVICE_ACCOUNT }}
     type: iam.v1.serviceAccount
     properties:
       accountId: {{ NAME_SERVICE_ACCOUNT }}
       displayName: {{ NAME_SERVICE_ACCOUNT }}
      
+  # Create a multi-zone storage bucket to hold images delivered by Thumbor   
   - name: {{ NAME_STORAGE_BUCKET }}
     type: storage.v1.bucket
     properties:
@@ -41,7 +44,7 @@ resources:
     accessControl:
       gcpIamPolicy:
         bindings:
-        - role: roles/storage.admin
+        - role: roles/storage.objectViewer
           members:
           - "serviceAccount:$(ref.{{ NAME_SERVICE_ACCOUNT }}.email)"
         - role: roles/storage.legacyBucketOwner
@@ -52,6 +55,7 @@ resources:
           members:
           - "projectViewer:{{ env["project"] }}"
   
+  # Create an instance template that runs a Thumbor server
   - name: {{ NAME_INSTANCE_TEMPLATE }}
     type: container_instance_template.jinja
     properties:
@@ -68,13 +72,15 @@ resources:
          UPLOAD_ENABLED: False
          RESULT_STORAGE_EXPIRATION_SECONDS: 300
          RESULT_STORAGE_STORES_UNSAFE: True
+         SECURITY_KEY: {{ properties["securityKey"] }}
+         ALLOW_UNSAFE_URL: {{ properties["allowUnsafe"] }}
       dockerImage: minimalcompact/thumbor
       containerImage: family/cos-stable
       tags: ["{{ NAME_FW_ALLOW_PROXY_AND_HEALTH_CHECK }}"]
       scopes:
         - https://www.googleapis.com/auth/devstorage.read_only
 
-
+  # Create a health check for use by the auto-scaler and load balancer
   - name: {{ NAME_HEALTH_CHECK }}
     type: compute.v1.healthCheck
     properties:
@@ -86,7 +92,9 @@ resources:
       tcpHealthCheck:
         port: 80
 
+  # For each requested zone...
   {% for zone in properties['zones'] %}
+  # Create an instance manager group in the request zone that launches Thumbor server instances
   - name: {{ NAME_INSTANCE_GROUP_MANAGER + '-' + zone }}
     type: compute.v1.instanceGroupManager
     properties:
@@ -101,7 +109,7 @@ resources:
       - name: http
         port: 80    
    
-
+  # Create an auto-scaler for the instance group 
   - name: {{ NAME_AUTOSCALER + '-' + zone }}
     type: compute.v1.autoscaler
     properties:
@@ -115,6 +123,7 @@ resources:
           utilizationTarget: 0.6
   {% endfor %}         
       
+  # Create a backend for the load balancer that balances to the instance groups    
   - name: {{ NAME_LB_BACKEND_SERVICE }}
     type: compute.v1.backendService
     properties:
@@ -130,16 +139,19 @@ resources:
         {% endfor %}
       healthChecks: [ $(ref.{{ NAME_HEALTH_CHECK }}.selfLink) ]
 
+  # Create a URL map that sends all traffic to the thumbor backends
   - name: {{ NAME_LB_URL_MAP }}
     type: compute.v1.urlMap
     properties:
       defaultService: $(ref.{{ NAME_LB_BACKEND_SERVICE }}.selfLink)      
 
+  # Create a http proxy to accept to proxy traffic 
   - name: {{ NAME_LB_FRONTEND_HTTP }}
     type: compute.v1.targetHttpProxy
     properties:
       urlMap: $(ref.{{ NAME_LB_URL_MAP }}.selfLink)
 
+  # Accept HTTP traffic on the load balancer and send to http proxy
   - name: {{ NAME_LB }}
     type: compute.v1.globalForwardingRule
     properties:
