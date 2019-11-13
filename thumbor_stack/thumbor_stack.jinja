@@ -96,7 +96,10 @@ resources:
       instanceTemplate: $(ref.{{ NAME_INSTANCE_TEMPLATE }}.selfLink)
       autoHealingPolicies:
       - initialDelaySec: 300
-        healthCheck: $(ref.{{ NAME_HEALTH_CHECK }}.selfLink)  
+        healthCheck: $(ref.{{ NAME_HEALTH_CHECK }}.selfLink)
+      namedPorts:
+      - name: http
+        port: 80    
    
 
   - name: {{ NAME_AUTOSCALER + '-' + zone }}
