@@ -83,5 +83,5 @@ For production:
 * Adjust the ```zones``` and ```storageLocation``` values as needed
 * You need to set the ```securityKey``` to a unique value
 * You will also most likely want to set ```allowUnsafe``` to ```false``` to require [signed URLs](https://thumbor.readthedocs.io/en/latest/security.html)
-* You will configure DNS to point a domain at the IP address of the load balancer
+* You will need to configure DNS to point a domain at the IP address of the load balancer
 * If you want to set up SSL you will need [configure a HTTPS front-end](https://cloud.google.com/load-balancing/docs/https/) and [a SSL certificate](https://cloud.google.com/load-balancing/docs/ssl-certificates)
