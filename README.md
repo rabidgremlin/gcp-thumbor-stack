@@ -6,7 +6,31 @@ This script creates a HTTP Cloud Load Balancer, pointing at a cluster of Thumbor
 The Thumbor servers are configured to process images from a storage bucket and the whole stack is front-ended by a Cloud CDN for speed and scalability. 
 
 ## Create and test the stack
-In your Cloud Shell, run the following commands. You can run replace ```thumbor-test``` with your own name. All resources created by the deployment manager scripts are pre-fixed with this name.
+
+### Set up your project APIs and permissions
+In your Cloud Shell, run the following commands to turn on the APIs needed to run these deployment manager scripts and the stack:
+
+```
+gcloud services enable compute.googleapis.com
+gcloud services enable storage-api.googleapis.com 
+gcloud services enable deploymentmanager.googleapis.com
+gcloud services enable cloudresourcemanager.googleapis.com
+gcloud services enable logging.googleapis.com
+gcloud services enable monitoring.googleapis.com
+```
+
+Run the following command to get you project number
+```
+gcloud projects describe $DEVSHELL_PROJECT_ID
+```
+
+Finally, give the default cloud services service account owner rights so that the deployment manager scripts can assign IAM roles. Replace [PROJECT_NUMBER] with your project number:
+```
+gcloud projects add-iam-policy-binding $DEVSHELL_PROJECT_ID --member serviceAccount:[PROJECT_NUMBER]@cloudservices.gserviceaccount.com --role roles/owner
+```
+
+### Build the stack
+Again in your Cloud Shell, run the following commands. You can run replace ```thumbor-test``` with your own name. All resources created by the deployment manager scripts are pre-fixed with this name.
 
 ```
 git https://github.com/rabidgremlin/gcp-thumbor-stack.git
@@ -14,6 +38,7 @@ cd gcp-thumbor-stack
 gcloud deployment-manager deployments create thumbor-test --config deploy.yaml
 ```
 
+### Test the stack
 Add an example image to your bucket. You will need to replace [BUCKET_NAME] with the name of storage bucket output by the deployment manager:
 ```
 wget https://images.pexels.com/photos/2216727/pexels-photo-2216727.jpeg?fm=jpg -O smiling-man-and-woman-sitting-on-pavement-2216727.jpg
