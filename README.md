@@ -11,6 +11,7 @@ The Thumbor servers are configured to process images from a storage bucket and t
 In your Cloud Shell, run the following commands to turn on the APIs needed to run these deployment manager scripts and the stack:
 
 ```
+gcloud services enable iam.googleapis.com
 gcloud services enable compute.googleapis.com
 gcloud services enable storage-api.googleapis.com 
 gcloud services enable deploymentmanager.googleapis.com
@@ -33,7 +34,7 @@ gcloud projects add-iam-policy-binding $DEVSHELL_PROJECT_ID --member serviceAcco
 Again in your Cloud Shell, run the following commands. You can run replace ```thumbor-test``` with your own name. All resources created by the deployment manager scripts are pre-fixed with this name.
 
 ```
-git https://github.com/rabidgremlin/gcp-thumbor-stack.git
+git clone https://github.com/rabidgremlin/gcp-thumbor-stack.git
 cd gcp-thumbor-stack
 gcloud deployment-manager deployments create thumbor-test --config deploy.yaml
 ```
@@ -64,7 +65,7 @@ ab -n 100 -c 2 http://[IP_ADDRESS]/unsafe/500x200/smart/smiling-man-and-woman-si
 If you change the parameters in the URL and rerun multiple times you can see the speed improvements 
 as the resized image is cached by Cloud CDN.
 
-You can also force your cluster to scale by deliberate forceing cache misses:
+You can also force your cluster to scale by deliberate forcing cache misses:
 ```
 ab -n 100 -c 5 http://[IP_ADDRESS]/unsafe/`date +%N | cut -c 7-`x200/smart/smiling-man-and-woman-sitting-on-pavement-2216727.jpg
 ```
