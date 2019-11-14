@@ -39,6 +39,11 @@ ab -n 100 -c 2 http://[IP_ADDRESS]/unsafe/500x200/smart/smiling-man-and-woman-si
 If you change the parameters in the URL and rerun multiple times you can see the speed improvements 
 as the resized image is cached by Cloud CDN.
 
+You can also force your cluster to scale by deliberate forceing cache misses:
+```
+ab -n 100 -c 5 http://[IP_ADDRESS]/unsafe/`date +%N | cut -c 7-`x200/smart/smiling-man-and-woman-sitting-on-pavement-2216727.jpg
+```
+
 ## Deleting the stack
 First remove any images from your storage bucket, then run:
 ```

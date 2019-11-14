@@ -31,7 +31,23 @@ resources:
     properties:
       accountId: {{ NAME_SERVICE_ACCOUNT }}
       displayName: {{ NAME_SERVICE_ACCOUNT }}
-     
+
+  # Assign log writer role to service account so that we get stackdriver logging    
+  - name: {{ env["deployment"] }}-add-logging-writer-role
+    type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+    properties:
+      resource: {{ env["project"] }}
+      role: roles/logging.logWriter
+      member: "serviceAccount:$(ref.{{ NAME_SERVICE_ACCOUNT }}.email)"
+
+  # Assign metric writer role to service account so that we get stackdriver metrics    
+  - name: {{ env["deployment"] }}-add-metric-writer-role
+    type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+    properties:
+      resource: {{ env["project"] }}
+      role: roles/monitoring.metricWriter
+      member: "serviceAccount:$(ref.{{ NAME_SERVICE_ACCOUNT }}.email)"    
+           
   # Create a multi-zone storage bucket to hold images delivered by Thumbor   
   - name: {{ NAME_STORAGE_BUCKET }}
     type: storage.v1.bucket
